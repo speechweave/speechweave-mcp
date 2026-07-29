@@ -1,0 +1,9 @@
+# Changelog
+
+## [1.0.0]
+
+### Added
+- **Initial release:** MCP server exposing SpeechWeave transcription as tools for Cursor, Claude Desktop, LM Studio, and other MCP clients.
+- **Wait-first tools:** `transcribe_file` and `transcribe_url` create a job and block until it completes, returning the transcript in one turn. On wait timeout they return `job_id` instead of failing the call.
+- **Async + poll tools:** `start_job_file` and `start_job_url` return a `job_id` immediately; `get_job_status` polls it and `cancel_job` cancels a queued or processing job.
+- **Library exports:** `createSpeechWeaveMcpServer`, `createClientFromEnv`, `defaultWaitTimeoutMs`, and `createHandlers` exported from the package root for embedding or testing outside the stdio entrypoint.
