@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.1]
+
+### Fixed
+- **Bin path:** `speechweave-mcp` now points at `dist/index.js` without a leading `./`, so npm publish no longer rewrites the bin entry.
+
 ## [1.0.0]
 
 ### Added
