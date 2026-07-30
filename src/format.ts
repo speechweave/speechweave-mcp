@@ -107,6 +107,11 @@ export function formatToolError( err : unknown ) : ToolJsonResult {
 			payload.code = err.code;
 
 		}
+		if ( err.type ) {
+
+			payload.type = err.type;
+
+		}
 		if ( err.retry_after != null ) {
 
 			payload.retry_after = err.retry_after;
@@ -114,7 +119,11 @@ export function formatToolError( err : unknown ) : ToolJsonResult {
 		}
 		if ( err.status === 402 ) {
 
-			payload.hint = "Top up your wallet or raise spend caps in the SpeechWeave dashboard, then retry.";
+			// PLATFORM_SPEND_CAP_REACHED is a hard, non-configurable monthly ceiling.
+			// Every other 402 code here is a wallet/cap issue that a top-up clears.
+			payload.hint = err.code === "PLATFORM_SPEND_CAP_REACHED"
+				? "This is a hard monthly account limit for your trust tier. Topping up the wallet will not lift it. It resets at the start of the next calendar month, or request an increase from Help & Support in the SpeechWeave dashboard."
+				: "Top up your wallet or raise spend caps in the SpeechWeave dashboard, then retry.";
 
 		}
 

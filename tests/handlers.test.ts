@@ -228,6 +228,34 @@ describe( "createHandlers", () => {
 
 	} );
 
+	it( "maps PLATFORM_SPEND_CAP_REACHED to a non-retry hint", async () => {
+
+		const client = mockClient( {
+			get: vi.fn( async () => {
+
+				throw new SpeechWeaveError(
+					"Platform monthly spend cap reached for this account tier.",
+					402,
+					"PLATFORM_SPEND_CAP_REACHED",
+					undefined,
+					undefined,
+					"insufficient_quota",
+				);
+
+			} ),
+		} );
+		const handlers = createHandlers( () => client as never );
+		const result = await handlers.get_job_status( { job_id: "job_1" } );
+		expect( result.isError ).toBe( true );
+		const body = JSON.parse( result.content[ 0 ]!.text );
+		expect( body.status ).toBe( 402 );
+		expect( body.code ).toBe( "PLATFORM_SPEND_CAP_REACHED" );
+		expect( body.type ).toBe( "insufficient_quota" );
+		expect( body.hint ).toMatch( /not lift it/i );
+		expect( body.hint ).not.toMatch( /then retry/i );
+
+	} );
+
 	it( "createClientFromEnv requires SPEECHWEAVE_API_KEY", async () => {
 
 		const { createClientFromEnv } = await import( "../src/client.js" );

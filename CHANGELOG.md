@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.1.0]
+
+### Changed
+- **`@speechweave/node` bumped to `^1.2.0`:** picks up the new OpenAI-style nested error envelope on wallet/billing `402`s (`error.message`/`.type`/`.param`/`.code`). `formatToolError` now surfaces `error.type` when present and no longer tells an agent to "top up and retry" on `PLATFORM_SPEND_CAP_REACHED`.
+
 ## [1.0.1]
 
 ### Fixed
