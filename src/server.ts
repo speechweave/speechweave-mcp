@@ -12,12 +12,10 @@ import {
 import { VERSION } from "./version.js";
 
 /** Build the SpeechWeave MCP server with wait-first and async+poll tools. */
-export function createSpeechWeaveMcpServer(
-	options : {
-		getClient ?: () => ReturnType<typeof createClientFromEnv>;
-		env ?: NodeJS.ProcessEnv;
-	} = {},
-) : McpServer {
+export function createSpeechWeaveMcpServer( options : {
+	getClient ?: () => ReturnType<typeof createClientFromEnv>;
+	env ?: NodeJS.ProcessEnv;
+} = {} ) : McpServer {
 
 	const env = options.env ?? process.env;
 	const getClient = options.getClient ?? ( () => createClientFromEnv( env ) );

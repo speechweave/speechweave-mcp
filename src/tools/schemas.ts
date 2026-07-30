@@ -14,9 +14,7 @@ export const serviceModeSchema = z
 		"synchronous", 
 	] )
 	.default( "deferred" )
-	.describe(
-		"deferred = background queue (default, better for long audio); synchronous = higher-priority path with a smaller size cap.",
-	);
+	.describe( "deferred = background queue (default, better for long audio); synchronous = higher-priority path with a smaller size cap." );
 
 export const languageSchema = z
 	.string()
@@ -30,16 +28,12 @@ export const timeoutMsSchema = z
 	.int()
 	.positive()
 	.optional()
-	.describe(
-		"Max milliseconds to wait for completion (default 1 hour). On timeout, returns job_id so you can call get_job_status.",
-	);
+	.describe( "Max milliseconds to wait for completion (default 1 hour). On timeout, returns job_id so you can call get_job_status." );
 
 export const pathSchema = z
 	.string()
 	.min( 1 )
-	.describe(
-		"Absolute local filesystem path to an audio or video file. Relative paths are rejected. Do not pass raw binary over MCP.",
-	);
+	.describe( "Absolute local filesystem path to an audio or video file. Relative paths are rejected. Do not pass raw binary over MCP." );
 
 export const urlSchema = z
 	.string()

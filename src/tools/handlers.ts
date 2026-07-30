@@ -37,15 +37,11 @@ export type HandlerDeps = {
 	waitForJob ?: WaitForJobFn;
 };
 
-function assertAbsolutePath(
-	filePath : string,
-) : string {
+function assertAbsolutePath( filePath : string ) : string {
 
 	if ( ! path.isAbsolute( filePath ) ) {
 
-		throw new Error(
-			`path must be an absolute filesystem path (got relative: ${ filePath }).`,
-		);
+		throw new Error( `path must be an absolute filesystem path (got relative: ${ filePath }).` );
 
 	}
 
@@ -61,13 +57,11 @@ function assertAbsolutePath(
 
 }
 
-function createOpts(
-	args : {
-		model : string;
-		service_mode : string;
-		language ?: string;
-	},
-) {
+function createOpts( args : {
+	model : string;
+	service_mode : string;
+	language ?: string;
+} ) {
 
 	return {
 		model: args.model,
@@ -134,13 +128,11 @@ async function waitOrTimeoutResult(
 				// Keep create ack if get fails.
 			}
 
-			return textResult(
-				summarizeJob( current, {
-					job_id: created.id,
-					timed_out: true,
-					hint: "Wait timed out before the job finished. Call get_job_status with this job_id to continue polling.",
-				} ),
-			);
+			return textResult( summarizeJob( current, {
+				job_id: created.id,
+				timed_out: true,
+				hint: "Wait timed out before the job finished. Call get_job_status with this job_id to continue polling.",
+			} ) );
 
 		}
 
@@ -160,9 +152,7 @@ export function createHandlers(
 	const waitForJob = deps.waitForJob ?? defaultWaitForJob;
 
 	return {
-		async transcribe_file(
-			args : TranscribeFileArgs,
-		) : Promise<ToolJsonResult> {
+		async transcribe_file( args : TranscribeFileArgs ) : Promise<ToolJsonResult> {
 
 			try {
 
@@ -181,9 +171,7 @@ export function createHandlers(
 
 		},
 
-		async transcribe_url(
-			args : TranscribeUrlArgs,
-		) : Promise<ToolJsonResult> {
+		async transcribe_url( args : TranscribeUrlArgs ) : Promise<ToolJsonResult> {
 
 			try {
 
@@ -202,20 +190,16 @@ export function createHandlers(
 
 		},
 
-		async start_job_file(
-			args : StartJobFileArgs,
-		) : Promise<ToolJsonResult> {
+		async start_job_file( args : StartJobFileArgs ) : Promise<ToolJsonResult> {
 
 			try {
 
 				const client = getClient();
 				const created = await createFromFile( client, args.path, createOpts( args ) );
 
-				return textResult(
-					summarizeJob( created, {
-						hint: "Job created. Call get_job_status with this id until status is completed, failed, or cancelled.",
-					} ),
-				);
+				return textResult( summarizeJob( created, {
+					hint: "Job created. Call get_job_status with this id until status is completed, failed, or cancelled.",
+				} ) );
 
 			}
 			catch ( err ) {
@@ -226,20 +210,16 @@ export function createHandlers(
 
 		},
 
-		async start_job_url(
-			args : StartJobUrlArgs,
-		) : Promise<ToolJsonResult> {
+		async start_job_url( args : StartJobUrlArgs ) : Promise<ToolJsonResult> {
 
 			try {
 
 				const client = getClient();
 				const created = await createFromUrl( client, args.url, createOpts( args ) );
 
-				return textResult(
-					summarizeJob( created, {
-						hint: "Job created. Call get_job_status with this id until status is completed, failed, or cancelled.",
-					} ),
-				);
+				return textResult( summarizeJob( created, {
+					hint: "Job created. Call get_job_status with this id until status is completed, failed, or cancelled.",
+				} ) );
 
 			}
 			catch ( err ) {
@@ -250,9 +230,7 @@ export function createHandlers(
 
 		},
 
-		async get_job_status(
-			args : GetJobStatusArgs,
-		) : Promise<ToolJsonResult> {
+		async get_job_status( args : GetJobStatusArgs ) : Promise<ToolJsonResult> {
 
 			try {
 
@@ -270,9 +248,7 @@ export function createHandlers(
 
 		},
 
-		async cancel_job(
-			args : CancelJobArgs,
-		) : Promise<ToolJsonResult> {
+		async cancel_job( args : CancelJobArgs ) : Promise<ToolJsonResult> {
 
 			try {
 

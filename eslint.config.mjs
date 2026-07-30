@@ -22,7 +22,6 @@ export default tseslint.config(
 			"@stylistic": stylistic,
 		},
 		rules: {
-			// 1. Strings, Indentation, and Semicolons
 			"@stylistic/quotes": [
 				"error",
 				"double",
@@ -85,18 +84,31 @@ export default tseslint.config(
 					prev: "*",
 					next: "return" },
 			],
-
-			// 3. Block Padding (Always pad multiline blocks, ignore single-line blocks)
 			"@stylistic/padded-blocks": [
 				"error",
 				"always",
 				{ allowSingleLineBlocks: true },
 			],
-
-			// 4. Automation Compromises
 			"@stylistic/computed-property-spacing": [
 				"error",
 				"always",
+			],
+			"@stylistic/function-paren-newline": [
+				"error",
+				"multiline"
+			],
+			"@stylistic/function-call-argument-newline": [
+				"error",
+				"consistent"
+			],
+			"@stylistic/object-curly-newline": [
+				"error",
+				{
+					ObjectExpression: { multiline: true, minProperties: 2, consistent: true },
+					ObjectPattern: { multiline: true, consistent: true },
+					ImportDeclaration: { multiline: true, minProperties: 4, consistent: true },
+					ExportDeclaration: { multiline: true, minProperties: 4, consistent: true }
+				}
 			],
 		},
 	},

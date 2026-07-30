@@ -1,10 +1,13 @@
-import { describe, expect, it, vi } from "vitest";
+import {
+	describe, expect, it, vi, 
+} from "vitest";
 import { SpeechWeaveError } from "@speechweave/node";
 import { createHandlers, type WaitForJobFn } from "../src/tools/handlers.js";
 
 vi.mock( "node:fs", () => {
 
 	const existsSync = vi.fn( () => true );
+
 	return {
 		default: { existsSync },
 		existsSync,
@@ -12,13 +15,11 @@ vi.mock( "node:fs", () => {
 
 } );
 
-function mockClient(
-	overrides : {
-		create ?: ReturnType<typeof vi.fn>;
-		get ?: ReturnType<typeof vi.fn>;
-		cancel ?: ReturnType<typeof vi.fn>;
-	} = {},
-) {
+function mockClient( overrides : {
+	create ?: ReturnType<typeof vi.fn>;
+	get ?: ReturnType<typeof vi.fn>;
+	cancel ?: ReturnType<typeof vi.fn>;
+} = {} ) {
 
 	const create = overrides.create ?? vi.fn( async () => ( {
 		id: "job_1",
@@ -38,9 +39,11 @@ function mockClient(
 	} ) );
 
 	return {
-		jobs: { create,
+		jobs: {
+			create,
 			get,
-			cancel },
+			cancel, 
+		},
 		create,
 		get,
 		cancel,

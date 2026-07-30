@@ -86,15 +86,15 @@ export function summarizeJob(
 
 	}
 
-	return { ...base,
-		...extra };
+	return {
+		...base,
+		...extra, 
+	};
 
 }
 
 /** Map a thrown error to a tool error result. Adds a wallet top-up hint on HTTP 402. */
-export function formatToolError(
-	err : unknown,
-) : ToolJsonResult {
+export function formatToolError( err : unknown ) : ToolJsonResult {
 
 	if ( err instanceof SpeechWeaveError ) {
 
