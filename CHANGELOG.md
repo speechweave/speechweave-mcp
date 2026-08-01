@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.2.0]
+
+### Changed
+- **`@speechweave/node` bumped to `^1.3.0`:** oversized files on `transcribe_file`/`start_job_file` are now rejected before upload with a 413 and a hint to use `service_mode: "deferred"`, instead of failing later after spending a presign/upload.
+
 ## [1.1.0]
 
 ### Changed
