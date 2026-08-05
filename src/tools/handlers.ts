@@ -6,6 +6,8 @@ import {
 	type CreateJobResponse,
 	type ServiceMode,
 	type SpeechWeave,
+	type TranscriptionResponseFormat,
+	type TranscriptionTask,
 	type V1Job,
 } from "@speechweave/node";
 import { defaultWaitTimeoutMs } from "../client.js";
@@ -61,12 +63,20 @@ function createOpts( args : {
 	model : string;
 	service_mode : string;
 	language ?: string;
+	task ?: string;
+	prompt ?: string;
 } ) {
+
+	const task = args.task === "translate" ? "translate" : undefined;
 
 	return {
 		model: args.model,
 		service_mode: args.service_mode as ServiceMode,
-		...( args.language ? { language: args.language } : {} ),
+		// Translation always targets English with no `language` param, so never send a
+		// source-language hint on a translate job.
+		...( task !== "translate" && args.language ? { language: args.language } : {} ),
+		...( task ? { task: task as TranscriptionTask } : {} ),
+		...( args.prompt ? { prompt: args.prompt } : {} ),
 	};
 
 }
@@ -99,18 +109,64 @@ async function createFromUrl(
 
 }
 
+/**
+ * When `format` is set and the job is completed, fetch the server-formatted transcript
+ * (`GET /v1/jobs/:id?format=`, same formatting the OpenAI-compat sync proxy uses) and fold
+ * it into the summarized result in place of the default plain transcript. No-ops (falls back
+ * to the default summary) when format is omitted or the job isn't completed yet, since Brain
+ * itself would reject a formatted read on an incomplete job, so this just avoids the
+ * round-trip rather than surfacing that as a tool error.
+ */
+async function withOptionalFormat(
+	client : SpeechWeave,
+	job : V1Job | CreateJobResponse,
+	format : string | undefined,
+	extra : Record<string, unknown> = {},
+) : Promise<ToolJsonResult> {
+
+	const status = "status" in job ? job.status : undefined;
+	if ( ! format || status !== "completed" ) {
+
+		return textResult( summarizeJob( job, extra ) );
+
+	}
+
+	const formatted = await client.getJobFormatted(
+		job.id,
+		format as Exclude<TranscriptionResponseFormat, "json">,
+	);
+	const base = summarizeJob( job, extra );
+	if ( typeof formatted === "string" ) {
+
+		return textResult( { ...base,
+			transcript: formatted,
+			format } );
+
+	}
+
+	return textResult( {
+		...base,
+		transcript: formatted.text,
+		segments: formatted.segments,
+		...( formatted.words ? { words: formatted.words } : {} ),
+		format,
+	} );
+
+}
+
 async function waitOrTimeoutResult(
 	client : SpeechWeave,
 	created : CreateJobResponse,
 	timeout_ms : number,
 	waitForJob : WaitForJobFn,
+	format ?: string,
 ) : Promise<ToolJsonResult> {
 
 	try {
 
 		const done = await waitForJob( client, created.id, { timeout_ms } );
 
-		return textResult( summarizeJob( done ) );
+		return await withOptionalFormat( client, done, format );
 
 	}
 	catch ( err ) {
@@ -160,7 +216,7 @@ export function createHandlers(
 				const created = await createFromFile( client, args.path, createOpts( args ) );
 				const timeout_ms = args.timeout_ms ?? defaultWaitTimeoutMs( env );
 
-				return await waitOrTimeoutResult( client, created, timeout_ms, waitForJob );
+				return await waitOrTimeoutResult( client, created, timeout_ms, waitForJob, args.response_format );
 
 			}
 			catch ( err ) {
@@ -179,7 +235,7 @@ export function createHandlers(
 				const created = await createFromUrl( client, args.url, createOpts( args ) );
 				const timeout_ms = args.timeout_ms ?? defaultWaitTimeoutMs( env );
 
-				return await waitOrTimeoutResult( client, created, timeout_ms, waitForJob );
+				return await waitOrTimeoutResult( client, created, timeout_ms, waitForJob, args.response_format );
 
 			}
 			catch ( err ) {
@@ -237,7 +293,7 @@ export function createHandlers(
 				const client = getClient();
 				const job = await client.jobs.get( args.job_id );
 
-				return textResult( summarizeJob( job ) );
+				return await withOptionalFormat( client, job, args.response_format );
 
 			}
 			catch ( err ) {

@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@speechweave/mcp.svg)](https://www.npmjs.com/package/@speechweave/mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Official [Model Context Protocol](https://modelcontextprotocol.io) server for [SpeechWeave](https://speechweave.com). Use to transcribe local files and URLs from Cursor, Claude Desktop, LM Studio, and other MCP clients.
+Official [Model Context Protocol](https://modelcontextprotocol.io) server for [SpeechWeave](https://speechweave.com). Use to transcribe local files and URLs from Cursor, Claude Desktop, Claude Code, Windsurf, and other MCP clients.
 
 SpeechWeave handles short clips and long-form audio without client-side chunking. This MCP server exposes both **wait-first** tools (get a transcript in one turn) and **async create + poll** tools (start a job, then check status).
 
@@ -51,10 +51,14 @@ Add to your MCP config (e.g. `.cursor/mcp.json`, `claude_desktop_config.json`):
 
 ### Configuration & Arguments
 
-All transcription tools accept the following optional arguments:
+All transcription and job-start tools accept the following optional arguments:
 * `model`: Choose `core` (default) or `max`.
 * `service_mode`: Choose `deferred` (default) or `synchronous`.
 * `language`: Optional ISO language code to force language detection.
+* `task`: Choose `transcribe` (default) or `translate` to produce an English translation instead; `language` is ignored when translating.
+* `prompt`: Optional custom vocabulary hint (proper nouns, acronyms, product names) for the first ~30s of audio.
+
+**Formatted transcripts:** `transcribe_file`, `transcribe_url`, and `get_job_status` also accept an optional `response_format` (`text`, `srt`, `vtt`, or `verbose_json`) to return the transcript in that shape instead of the default plain text.
 
 **Timeout behavior:** Wait-first tools accept an optional `timeout_ms`. If the transcription exceeds the timeout, the tool gracefully returns a `job_id` and instructs the client to switch to `get_job_status` polling.
 
@@ -71,3 +75,8 @@ After adding the server and restarting your client, try asking your AI assistant
 > "Start a SpeechWeave job for `https://cdn.example.com/three_hour_podcast.mp3`, then check back until it completes."
 
 *The assistant will call `start_job_url`, then periodically call `get_job_status` until the status reaches `completed`.*
+
+### Translate to subtitles (wait-first)
+> "Translate `/Users/me/recordings/spanish_interview.mp3` into English SRT subtitles using SpeechWeave."
+
+*The assistant will call `transcribe_file` with `task: "translate"` and `response_format: "srt"`.*

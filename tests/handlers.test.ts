@@ -19,6 +19,7 @@ function mockClient( overrides : {
 	create ?: ReturnType<typeof vi.fn>;
 	get ?: ReturnType<typeof vi.fn>;
 	cancel ?: ReturnType<typeof vi.fn>;
+	getJobFormatted ?: ReturnType<typeof vi.fn>;
 } = {} ) {
 
 	const create = overrides.create ?? vi.fn( async () => ( {
@@ -37,16 +38,18 @@ function mockClient( overrides : {
 		success: true,
 		status: "cancelled",
 	} ) );
+	const getJobFormatted = overrides.getJobFormatted ?? vi.fn( async () => "formatted-output" );
 
 	return {
 		jobs: {
 			create,
 			get,
-			cancel, 
+			cancel,
 		},
 		create,
 		get,
 		cancel,
+		getJobFormatted,
 	};
 
 }
@@ -61,6 +64,7 @@ describe( "createHandlers", () => {
 			path: "./relative.mp3",
 			model: "core",
 			service_mode: "deferred",
+			task: "transcribe",
 		} );
 
 		expect( result.isError ).toBe( true );
@@ -80,6 +84,7 @@ describe( "createHandlers", () => {
 			path: "/tmp/missing.mp3",
 			model: "core",
 			service_mode: "deferred",
+			task: "transcribe",
 		} );
 
 		expect( result.isError ).toBe( true );
@@ -97,6 +102,7 @@ describe( "createHandlers", () => {
 			path: "/tmp/clip.mp3",
 			model: "core",
 			service_mode: "deferred",
+			task: "transcribe",
 		} );
 
 		expect( result.isError ).toBeUndefined();
@@ -117,6 +123,7 @@ describe( "createHandlers", () => {
 			model: "max",
 			service_mode: "synchronous",
 			language: "en",
+			task: "transcribe",
 		} );
 
 		expect( client.create ).toHaveBeenCalledWith( {
@@ -142,6 +149,7 @@ describe( "createHandlers", () => {
 			url: "https://example.com/a.mp3",
 			model: "core",
 			service_mode: "deferred",
+			task: "transcribe",
 			timeout_ms: 5_000,
 		} );
 
@@ -176,6 +184,7 @@ describe( "createHandlers", () => {
 			path: "/tmp/long.mp3",
 			model: "core",
 			service_mode: "deferred",
+			task: "transcribe",
 			timeout_ms: 100,
 		} );
 
@@ -195,6 +204,108 @@ describe( "createHandlers", () => {
 		const result = await handlers.get_job_status( { job_id: "job_1" } );
 		const body = JSON.parse( result.content[ 0 ]!.text );
 		expect( body.transcript ).toBe( "hello world" );
+
+	} );
+
+	it( "get_job_status with response_format on a completed job delegates to getJobFormatted", async () => {
+
+		const client = mockClient( {
+			getJobFormatted: vi.fn( async () => "WEBVTT\n\n00:00:00.000 --> 00:00:01.000\nhello\n" ),
+		} );
+		const handlers = createHandlers( () => client as never );
+		const result = await handlers.get_job_status( { job_id: "job_1",
+			response_format: "vtt" } );
+		const body = JSON.parse( result.content[ 0 ]!.text );
+
+		expect( client.getJobFormatted ).toHaveBeenCalledWith( "job_1", "vtt" );
+		expect( body.transcript ).toBe( "WEBVTT\n\n00:00:00.000 --> 00:00:01.000\nhello\n" );
+		expect( body.format ).toBe( "vtt" );
+
+	} );
+
+	it( "get_job_status with response_format on an incomplete job skips getJobFormatted", async () => {
+
+		const client = mockClient( {
+			get: vi.fn( async () => ( { id: "job_1",
+				status: "processing" } ) ),
+		} );
+		const handlers = createHandlers( () => client as never );
+		const result = await handlers.get_job_status( { job_id: "job_1",
+			response_format: "vtt" } );
+		const body = JSON.parse( result.content[ 0 ]!.text );
+
+		expect( client.getJobFormatted ).not.toHaveBeenCalled();
+		expect( body.status ).toBe( "processing" );
+
+	} );
+
+	it( "get_job_status with response_format 'verbose_json' folds segments/words into the result", async () => {
+
+		const client = mockClient( {
+			getJobFormatted: vi.fn( async () => ( {
+				task: "transcribe",
+				text: "hello world",
+				segments: [ { start: 0, end: 1, text: "hello world" } ],
+				words: [ { word: "hello", start: 0, end: 0.5 } ],
+			} ) ),
+		} );
+		const handlers = createHandlers( () => client as never );
+		const result = await handlers.get_job_status( { job_id: "job_1",
+			response_format: "verbose_json" } );
+		const body = JSON.parse( result.content[ 0 ]!.text );
+
+		expect( body.transcript ).toBe( "hello world" );
+		expect( body.segments ).toEqual( [ { start: 0, end: 1, text: "hello world" } ] );
+		expect( body.words ).toEqual( [ { word: "hello", start: 0, end: 0.5 } ] );
+
+	} );
+
+	it( "transcribe_file forwards task=translate and prompt, and omits language for translation", async () => {
+
+		const client = mockClient();
+		const handlers = createHandlers( () => client as never );
+		await handlers.transcribe_file( {
+			path: "/tmp/clip.mp3",
+			model: "core",
+			service_mode: "deferred",
+			task: "translate",
+			prompt: "SpeechWeave, Acme Corp",
+			language: "es",
+		} );
+
+		expect( client.create ).toHaveBeenCalledWith( {
+			file: "/tmp/clip.mp3",
+			model: "core",
+			service_mode: "deferred",
+			task: "translate",
+			prompt: "SpeechWeave, Acme Corp",
+		} );
+
+	} );
+
+	it( "transcribe_file with response_format delegates to getJobFormatted after waiting", async () => {
+
+		const client = mockClient( {
+			getJobFormatted: vi.fn( async () => "1\n00:00:00,000 --> 00:00:01,000\nhello\n" ),
+		} );
+		const waitForJob : WaitForJobFn = vi.fn( async () => ( {
+			id: "job_1",
+			status: "completed",
+			transcript: "hello",
+			duration: 1,
+		} ) );
+		const handlers = createHandlers( () => client as never, {}, { waitForJob } );
+		const result = await handlers.transcribe_file( {
+			path: "/tmp/clip.mp3",
+			model: "core",
+			service_mode: "deferred",
+			task: "transcribe",
+			response_format: "srt",
+		} );
+		const body = JSON.parse( result.content[ 0 ]!.text );
+
+		expect( client.getJobFormatted ).toHaveBeenCalledWith( "job_1", "srt" );
+		expect( body.transcript ).toBe( "1\n00:00:00,000 --> 00:00:01,000\nhello\n" );
 
 	} );
 

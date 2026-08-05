@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.3.0]
+
+### Added
+- **Translate task:** `transcribe_file`, `transcribe_url`, and `start_job_file` accept a new `task` argument (`"transcribe"`, the default, or `"translate"` for English translation); `language` is ignored when translating.
+- **Custom vocabulary prompt:** the same tools accept an optional `prompt` argument to hint proper nouns, acronyms, or product names for the first ~30s of audio.
+- **Formatted transcripts:** `get_job_status` accepts an optional `response_format` (`"text"`, `"srt"`, `"vtt"`, or `"verbose_json"`) to return the transcript in that shape instead of the default plain text, for a completed job.
+
+### Changed
+- **`@speechweave/node` bumped to `^1.4.0`:** required for the `task`/`prompt`/`response_format` support and `getJobFormatted` above.
+
 ## [1.2.0]
 
 ### Changed

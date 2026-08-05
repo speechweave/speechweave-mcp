@@ -30,6 +30,30 @@ export const timeoutMsSchema = z
 	.optional()
 	.describe( "Max milliseconds to wait for completion (default 1 hour). On timeout, returns job_id so you can call get_job_status." );
 
+export const taskSchema = z
+	.enum( [
+		"transcribe",
+		"translate",
+	] )
+	.default( "transcribe" )
+	.describe( "transcribe (default) keeps the audio's original language. translate produces an English translation instead, the language param is ignored when translating." );
+
+export const promptSchema = z
+	.string()
+	.max( 2000 )
+	.optional()
+	.describe( "Custom vocabulary hint: proper nouns, acronyms, or product names to spell correctly (e.g. 'SpeechWeave, Acme Corp'). Only reliably influences the first ~30s of audio, not a full glossary." );
+
+export const responseFormatSchema = z
+	.enum( [
+		"text",
+		"srt",
+		"vtt",
+		"verbose_json",
+	] )
+	.optional()
+	.describe( "Optional transcript format. Omit for the default plain transcript. 'srt'/'vtt' return subtitle-file text; 'verbose_json' includes timestamped segments." );
+
 export const pathSchema = z
 	.string()
 	.min( 1 )
@@ -53,6 +77,9 @@ export const transcribeFileSchema = z.object( {
 	model: modelSchema,
 	service_mode: serviceModeSchema,
 	language: languageSchema,
+	task: taskSchema,
+	prompt: promptSchema,
+	response_format: responseFormatSchema,
 	timeout_ms: timeoutMsSchema,
 } );
 
@@ -61,6 +88,9 @@ export const transcribeUrlSchema = z.object( {
 	model: modelSchema,
 	service_mode: serviceModeSchema,
 	language: languageSchema,
+	task: taskSchema,
+	prompt: promptSchema,
+	response_format: responseFormatSchema,
 	timeout_ms: timeoutMsSchema,
 } );
 
@@ -69,6 +99,8 @@ export const startJobFileSchema = z.object( {
 	model: modelSchema,
 	service_mode: serviceModeSchema,
 	language: languageSchema,
+	task: taskSchema,
+	prompt: promptSchema,
 } );
 
 export const startJobUrlSchema = z.object( {
@@ -76,10 +108,13 @@ export const startJobUrlSchema = z.object( {
 	model: modelSchema,
 	service_mode: serviceModeSchema,
 	language: languageSchema,
+	task: taskSchema,
+	prompt: promptSchema,
 } );
 
 export const getJobStatusSchema = z.object( {
 	job_id: jobIdSchema,
+	response_format: responseFormatSchema,
 } );
 
 export const cancelJobSchema = z.object( {
