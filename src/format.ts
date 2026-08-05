@@ -65,16 +65,6 @@ export function summarizeJob(
 		base.error = job.error;
 
 	}
-	if ( "progress" in job && job.progress != null ) {
-
-		base.progress = job.progress;
-
-	}
-	if ( "stage" in job && job.stage != null ) {
-
-		base.stage = job.stage;
-
-	}
 	if ( "created_at" in job && job.created_at != null ) {
 
 		base.created_at = job.created_at;
