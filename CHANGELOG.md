@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.3.2]
+
+### Changed
+- **`@speechweave/node` lockfile refresh to `1.4.1`:** picks up the upstream `npm audit fix` dev-dependency patch bump.
+
+## [1.3.1]
+
+### Fixed
+- **`package-lock.json` out of sync:** the lockfile still resolved `@speechweave/node` to `1.3.0`. Refreshed the lockfile to resolve `1.4.0`.
+
 ## [1.3.0]
 
 ### Added
