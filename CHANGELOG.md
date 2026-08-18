@@ -6,6 +6,10 @@
 
 - **Default `service_mode` is now `synchronous`:** MCP create/wait-first tools default to the standard queue when `service_mode` is omitted. Pass `deferred` explicitly for the background queue.
 
+### Security
+
+- Bumped `nanoid` to `3.3.18` to fix a high-severity infinite loop vulnerability.
+
 ## [1.4.0]
 
 ### Changed
