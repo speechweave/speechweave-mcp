@@ -53,7 +53,7 @@ Add to your MCP config (e.g. `.cursor/mcp.json`, `claude_desktop_config.json`):
 
 All transcription and job-start tools accept the following optional arguments:
 * `model`: Choose `core` (default) or `max`.
-* `service_mode`: Choose `deferred` (default) or `synchronous`.
+* `service_mode`: Choose `synchronous` (default) or `deferred` for the background queue.
 * `language`: Optional ISO language code to force language detection.
 * `task`: Choose `transcribe` (default) or `translate` to produce an English translation instead; `language` is ignored when translating.
 * `prompt`: Optional custom vocabulary hint (proper nouns, acronyms, product names) for the first ~30s of audio.

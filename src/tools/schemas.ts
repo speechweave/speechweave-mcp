@@ -13,8 +13,8 @@ export const serviceModeSchema = z
 		"deferred",
 		"synchronous", 
 	] )
-	.default( "deferred" )
-	.describe( "deferred = background queue (default, better for long audio); synchronous = higher-priority path with a smaller size cap." );
+	.default( "synchronous" )
+	.describe( "synchronous = higher-priority path (default); deferred = background queue." );
 
 export const languageSchema = z
 	.string()
