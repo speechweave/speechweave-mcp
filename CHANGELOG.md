@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.7.0]
+
+### Changed
+
+- `@speechweave/node` **bumped to** `^1.7.0`**:** picks up the public `service_mode` rename (`standard`, with `synchronous` still accepted as an alias) so MCP and the Node SDK stay aligned.
+
 ## [1.6.0]
 
 ### Changed

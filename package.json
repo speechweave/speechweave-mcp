@@ -54,7 +54,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
-    "@speechweave/node": "^1.5.0",
+    "@speechweave/node": "^1.7.0",
     "zod": "^3.25.0"
   },
   "devDependencies": {
