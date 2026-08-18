@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.6.0]
+
+### Changed
+
+- **Default `service_mode` is now `standard`:** MCP create/wait-first tools default to the higher-priority queue when `service_mode` is omitted. `synchronous` remains an accepted alias. Pass `deferred` explicitly for the cheaper background queue.
+
 ## [1.5.0]
 
 ### Changed

@@ -10,11 +10,12 @@ export const modelSchema = z
 
 export const serviceModeSchema = z
 	.enum( [
+		"standard",
 		"deferred",
-		"synchronous", 
+		"synchronous",
 	] )
-	.default( "synchronous" )
-	.describe( "synchronous = higher-priority path (default); deferred = background queue." );
+	.default( "standard" )
+	.describe( "standard = higher-priority queue (default), deferred = cheaper background queue. synchronous is an alias for standard." );
 
 export const languageSchema = z
 	.string()
