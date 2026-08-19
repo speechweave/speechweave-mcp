@@ -4,14 +4,14 @@ SpeechWeave uses a prepaid USD wallet. Jobs settle against your balance.
 
 ## Trust tiers
 
-Each workspace has a trust tier that sets max single top-up and monthly API spend cap:
+Each workspace has a trust tier that sets max single top-up and monthly API spend cap. Age gates measure **days since the workspace's first successful top-up**, not signup date. Each qualifying evaluation promotes at most **one tier step**.
 
 | Tier | Max top-up | Monthly spend cap | Graduates at |
 |---|---|---|---|
 | 1 | $50 | $150 | Default on signup |
-| 2 | $250 | $1,000 | $50 net paid + 7 days old |
-| 3 | $1,000 | $5,000 | $250 net paid + 7 days old |
-| 4 | $5,000 | Unlimited | $1,000 net paid + 7 days old |
+| 2 | $250 | $1,000 | $50 net paid + 7 days since first top-up |
+| 3 | $1,000 | $5,000 | $250 net paid + 21 days since first top-up |
+| 4 | $5,000 | Unlimited | $1,000 net paid + 60 days since first top-up |
 
 Minimum top-up: $5.00 across all tiers.
 

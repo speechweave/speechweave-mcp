@@ -1,6 +1,5 @@
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import {
 	BUNDLED_DOC_SLUGS,
 	DOC_SLUG_DESCRIPTIONS,
@@ -15,12 +14,15 @@ import {
 
 function resolvePackageRoot() : string {
 
-	const starts = [
-		typeof __dirname !== "undefined"
-			? __dirname
-			: path.dirname( fileURLToPath( import.meta.url ) ),
-		process.cwd(),
-	];
+	const starts : string[] = [];
+
+	if ( typeof __dirname !== "undefined" ) {
+
+		starts.push( path.resolve( __dirname, ".." ) );
+
+	}
+
+	starts.push( process.cwd() );
 
 	for ( const start of starts ) {
 

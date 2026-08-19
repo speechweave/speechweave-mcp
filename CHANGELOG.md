@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.0] — in progress
+
+### Changed
+
+- **`fetch_doc` bundled docs:** ESM/CJS builds now resolve the shipped `reference/` markdown reliably when installed from npm (dirname shim in the bundle).
+- **`fetch_doc` billing reference:** trust-tier graduation copy updated for payment-age gates (7 / 21 / 60 days since first top-up) and one-step tier promotions.
+
 ## [1.8.0]
 
 ### Added
