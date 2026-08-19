@@ -122,9 +122,22 @@ export const cancelJobSchema = z.object( {
 	job_id: jobIdSchema,
 } );
 
+export const getLimitsSchema = z.object( {} );
+
+export const fetchDocSchema = z.object( {
+	slug: z
+		.string()
+		.min( 1 )
+		.describe(
+			"Doc page slug. Use 'list' for the catalog. Bundled pages: quickstart, mcp, models, billing, data_retention, migration_openai, migration_deepgram, migration_assemblyai. Live API: 'api' (overview + index) or 'api/<operation_slug>' (e.g. api/get_v1_limits, api/post_v1_jobs).",
+		),
+} );
+
 export type TranscribeFileArgs = z.infer<typeof transcribeFileSchema>;
 export type TranscribeUrlArgs = z.infer<typeof transcribeUrlSchema>;
 export type StartJobFileArgs = z.infer<typeof startJobFileSchema>;
 export type StartJobUrlArgs = z.infer<typeof startJobUrlSchema>;
 export type GetJobStatusArgs = z.infer<typeof getJobStatusSchema>;
 export type CancelJobArgs = z.infer<typeof cancelJobSchema>;
+export type GetLimitsArgs = z.infer<typeof getLimitsSchema>;
+export type FetchDocArgs = z.infer<typeof fetchDocSchema>;

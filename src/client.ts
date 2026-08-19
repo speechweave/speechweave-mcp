@@ -6,7 +6,7 @@ import { VERSION } from "./version.js";
  * `@speechweave/node` one, so MCP-originated jobs can be told apart
  * from direct Node SDK usage.
  */
-function mcpFetch(
+export function mcpFetch(
 	input : Parameters<typeof fetch>[ 0 ],
 	init : RequestInit = {},
 ) : Promise<Response> {

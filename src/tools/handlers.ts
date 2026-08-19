@@ -10,7 +10,9 @@ import {
 	type TranscriptionTask,
 	type V1Job,
 } from "@speechweave/node";
-import { defaultWaitTimeoutMs } from "../client.js";
+import { defaultWaitTimeoutMs, mcpFetch } from "../client.js";
+import { fetchDoc } from "../docs/fetch-doc.js";
+import { summarizeLimits } from "../docs/limits-format.js";
 import {
 	formatToolError,
 	summarizeJob,
@@ -19,7 +21,9 @@ import {
 } from "../format.js";
 import type {
 	CancelJobArgs,
+	FetchDocArgs,
 	GetJobStatusArgs,
+	GetLimitsArgs,
 	StartJobFileArgs,
 	StartJobUrlArgs,
 	TranscribeFileArgs,
@@ -316,6 +320,41 @@ export function createHandlers(
 					success: result.success,
 					status: result.status,
 				} );
+
+			}
+			catch ( err ) {
+
+				return formatToolError( err );
+
+			}
+
+		},
+
+		async get_limits( _args : GetLimitsArgs ) : Promise<ToolJsonResult> {
+
+			try {
+
+				const client = getClient();
+				const limits = await client.getLimits();
+
+				return textResult( summarizeLimits( limits ) );
+
+			}
+			catch ( err ) {
+
+				return formatToolError( err );
+
+			}
+
+		},
+
+		async fetch_doc( args : FetchDocArgs ) : Promise<ToolJsonResult> {
+
+			try {
+
+				const doc = await fetchDoc( args.slug, env, mcpFetch );
+
+				return textResult( doc );
 
 			}
 			catch ( err ) {

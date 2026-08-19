@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.0]
+
+### Added
+
+- **`get_limits` tool:** wraps `GET /v1/limits` and returns byte caps plus MB equivalents for the calling API key.
+- **`fetch_doc` tool:** returns bundled public docs (quickstart, MCP, models, billing, retention, migration guides) or live OpenAPI content (`api`, `api/<operation_slug>`).
+
 ## [1.7.0]
 
 ### Changed

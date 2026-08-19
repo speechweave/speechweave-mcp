@@ -3,7 +3,9 @@ import { createClientFromEnv } from "./client.js";
 import { createHandlers } from "./tools/handlers.js";
 import {
 	cancelJobSchema,
+	fetchDocSchema,
 	getJobStatusSchema,
+	getLimitsSchema,
 	startJobFileSchema,
 	startJobUrlSchema,
 	transcribeFileSchema,
@@ -90,6 +92,28 @@ export function createSpeechWeaveMcpServer( options : {
 			inputSchema: cancelJobSchema.shape,
 		},
 		async ( args ) => handlers.cancel_job( cancelJobSchema.parse( args ) ),
+	);
+
+	server.registerTool(
+		"get_limits",
+		{
+			title: "Get account upload limits",
+			description:
+				"Fetch upload size ceilings for the calling API key (GET /v1/limits). Returns max_input_bytes, sync_max_bytes, and proxy_max_bytes plus MB equivalents. Call before transcribe_file or start_job_file when file size is large.",
+			inputSchema: getLimitsSchema.shape,
+		},
+		async ( args ) => handlers.get_limits( getLimitsSchema.parse( args ) ),
+	);
+
+	server.registerTool(
+		"fetch_doc",
+		{
+			title: "Fetch SpeechWeave documentation",
+			description:
+				"Return public SpeechWeave documentation for a slug. Use slug 'list' for the catalog. Bundled pages include quickstart, mcp, models, billing, and data_retention. Use slug 'api' for a live OpenAPI overview, or 'api/<operation_slug>' for one endpoint (e.g. api/get_v1_limits).",
+			inputSchema: fetchDocSchema.shape,
+		},
+		async ( args ) => handlers.fetch_doc( fetchDocSchema.parse( args ) ),
 	);
 
 	return server;

@@ -46,6 +46,8 @@ Add to your MCP config (e.g. `.cursor/mcp.json`, `claude_desktop_config.json`):
 | `start_job_url` | Async | Public HTTPS URL; return `job_id` immediately |
 | `get_job_status` | Poll | Fetch status / transcript for a job id |
 | `cancel_job` | Control | Cancel a queued or processing job |
+| `get_limits` | Info | Upload size ceilings for your API key |
+| `fetch_doc` | Info | Public docs by slug (bundled pages + live OpenAPI) |
 
 **Never pass raw audio bytes over MCP.** Use absolute file paths (local clients) or HTTPS URLs.
 
@@ -61,6 +63,11 @@ All transcription and job-start tools accept the following optional arguments:
 **Formatted transcripts:** `transcribe_file`, `transcribe_url`, and `get_job_status` also accept an optional `response_format` (`text`, `srt`, `vtt`, or `verbose_json`) to return the transcript in that shape instead of the default plain text.
 
 **Timeout behavior:** Wait-first tools accept an optional `timeout_ms`. If the transcription exceeds the timeout, the tool gracefully returns a `job_id` and instructs the client to switch to `get_job_status` polling.
+
+### Account limits and docs
+
+* `get_limits`: Returns `GET /v1/limits` for the calling key, with MB equivalents. Use before uploading large local files.
+* `fetch_doc`: Returns public documentation. Slug `list` shows the catalog. Bundled pages include `quickstart`, `mcp`, `models`, `billing`, and `data_retention`. Slug `api` fetches a live OpenAPI overview; `api/<operation_slug>` returns one endpoint (e.g. `api/get_v1_limits`).
 
 ## Example Prompts
 

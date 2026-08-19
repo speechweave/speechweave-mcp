@@ -4,13 +4,18 @@ import {
 import { SpeechWeaveError } from "@speechweave/node";
 import { createHandlers, type WaitForJobFn } from "../src/tools/handlers.js";
 
-vi.mock( "node:fs", () => {
+vi.mock( "node:fs", async ( importActual ) => {
 
+	const actual = await importActual<typeof import( "node:fs" )>();
 	const existsSync = vi.fn( () => true );
 
 	return {
-		default: { existsSync },
+		default: {
+			existsSync,
+			readFileSync: actual.readFileSync,
+		},
 		existsSync,
+		readFileSync: actual.readFileSync,
 	};
 
 } );
@@ -20,6 +25,7 @@ function mockClient( overrides : {
 	get ?: ReturnType<typeof vi.fn>;
 	cancel ?: ReturnType<typeof vi.fn>;
 	getJobFormatted ?: ReturnType<typeof vi.fn>;
+	getLimits ?: ReturnType<typeof vi.fn>;
 } = {} ) {
 
 	const create = overrides.create ?? vi.fn( async () => ( {
@@ -39,6 +45,11 @@ function mockClient( overrides : {
 		status: "cancelled",
 	} ) );
 	const getJobFormatted = overrides.getJobFormatted ?? vi.fn( async () => "formatted-output" );
+	const getLimits = overrides.getLimits ?? vi.fn( async () => ( {
+		max_input_bytes: 262_144_000,
+		sync_max_bytes: 94_371_840,
+		proxy_max_bytes: 94_371_840,
+	} ) );
 
 	return {
 		jobs: {
@@ -50,6 +61,7 @@ function mockClient( overrides : {
 		get,
 		cancel,
 		getJobFormatted,
+		getLimits,
 	};
 
 }
@@ -317,6 +329,32 @@ describe( "createHandlers", () => {
 		const body = JSON.parse( result.content[ 0 ]!.text );
 		expect( body.success ).toBe( true );
 		expect( body.status ).toBe( "cancelled" );
+
+	} );
+
+	it( "get_limits returns enriched account limits", async () => {
+
+		const client = mockClient();
+		const handlers = createHandlers( () => client as never );
+		const result = await handlers.get_limits( {} );
+		const body = JSON.parse( result.content[ 0 ]!.text );
+
+		expect( client.getLimits ).toHaveBeenCalledOnce();
+		expect( body.max_input_bytes ).toBe( 262_144_000 );
+		expect( body.max_input_mb ).toBe( 250 );
+		expect( body.hint ).toMatch( /sync_max_bytes/ );
+
+	} );
+
+	it( "fetch_doc returns bundled documentation", async () => {
+
+		const client = mockClient();
+		const handlers = createHandlers( () => client as never );
+		const result = await handlers.fetch_doc( { slug: "mcp" } );
+		const body = JSON.parse( result.content[ 0 ]!.text );
+
+		expect( body.source ).toBe( "bundled" );
+		expect( body.content ).toMatch( /@speechweave\/mcp/ );
 
 	} );
 
