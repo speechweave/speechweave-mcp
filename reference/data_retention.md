@@ -21,7 +21,7 @@ Strictly in-memory processing: transcripts never enter queryable storage; sync A
 Configure endpoints in Dashboard → Webhooks.
 
 - Successful deliveries: kept **72 hours** (privacy first) or **30 days** (extended debugging), per workspace setting
-- Failed / in-retry deliveries: capped at **30 days** regardless of mode
+- Failed / in-retry deliveries: capped at **7 days** regardless of mode
 - **Replay** creates a new delivery from a stored payload (standard mode only)
 
 ## Job metadata
@@ -30,6 +30,6 @@ Completed and failed job rows age out of the live database after ~30 days. Trans
 
 ## Audio uploads
 
-Source audio is deleted when a job reaches a terminal state (completed or failed). A storage backstop removes any remaining source audio within 30 days.
+Source audio is deleted when a job reaches a terminal state (completed or failed). A storage backstop removes any remaining source audio within 7 days.
 
 **Debug mode** (Project settings): retains source audio for **failed** jobs only in an isolated staging area for 24 hours so you can download from Job Logs. Successful jobs still wipe immediately.
