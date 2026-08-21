@@ -78,5 +78,6 @@
     "*.{ts,js}": [
       "eslint --fix"
     ]
-  }
+  },
+  "mcpName": "io.github.speechweave/mcp"
 }

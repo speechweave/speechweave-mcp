@@ -2,6 +2,10 @@
 
 ## [1.9.0] — in progress
 
+### Added
+
+- **MCP Registry:** `mcpName` (`io.github.speechweave/mcp`), `server.json`, and tag-triggered publish to the official MCP Registry after npm.
+
 ### Changed
 
 - **`fetch_doc` data retention:** source-audio storage backstop documented as 7 days (was 30), matching the live object-lifecycle rules on `uploads/` and `proxied/`. Failed and in-retry webhook delivery rows capped at 7 days (was 30).

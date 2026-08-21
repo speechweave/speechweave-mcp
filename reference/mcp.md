@@ -20,7 +20,6 @@ Requires Node.js 18+ and `SPEECHWEAVE_API_KEY`.
 }
 ```
 
-Optional: `SPEECHWEAVE_BASE_URL` (default production `/v1` base).
 Optional: `SPEECHWEAVE_JOB_WAIT_MS` overrides the default one-hour wait timeout on wait-first tools.
 
 ## Tools

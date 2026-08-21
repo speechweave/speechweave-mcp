@@ -1,0 +1,31 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.speechweave/mcp",
+  "title": "SpeechWeave",
+  "description": "Transcribe local files and URLs with SpeechWeave's OpenAI-compatible API.",
+  "websiteUrl": "https://speechweave.com/docs/mcp",
+  "repository": {
+    "url": "https://github.com/speechweave/speechweave-mcp",
+    "source": "github"
+  },
+  "version": "1.9.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@speechweave/mcp",
+      "version": "1.9.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "SPEECHWEAVE_API_KEY",
+          "description": "SpeechWeave API key (sk_live_...)",
+          "isRequired": true,
+          "isSecret": true,
+          "format": "string"
+        }
+      ]
+    }
+  ]
+}
