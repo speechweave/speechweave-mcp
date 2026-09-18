@@ -21,7 +21,14 @@ echo "Releasing v$VERSION...";
 echo "Running type checks, tests, and dependency audit";
 npm run check;
 npm test;
-npm audit;
+
+if ! npm audit; then
+
+  echo;
+  echo "Error: npm audit found vulnerabilities (see above). Resolve them (npm audit fix, or bump the offending package directly) before releasing.";
+  exit 1;
+
+fi;
 
 npm version "$VERSION" -m "chore: release v%s";
 
