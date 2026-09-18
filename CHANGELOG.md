@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.9.3]
+
+### Changed
+
+- **`@speechweave/node` bumped to `^1.7.2`:** Pulls in fixes for retry issues.
+
 ## [1.9.2]
 
 ### Changed
