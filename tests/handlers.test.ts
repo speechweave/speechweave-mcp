@@ -275,7 +275,13 @@ describe( "createHandlers", () => {
 	it( "transcribe_file forwards task=translate and prompt, and omits language for translation", async () => {
 
 		const client = mockClient();
-		const handlers = createHandlers( () => client as never );
+		const waitForJob : WaitForJobFn = vi.fn( async () => ( {
+			id: "job_1",
+			status: "completed",
+			transcript: "hello",
+			duration: 1,
+		} ) );
+		const handlers = createHandlers( () => client as never, {}, { waitForJob } );
 		await handlers.transcribe_file( {
 			path: "/tmp/clip.mp3",
 			model: "core",

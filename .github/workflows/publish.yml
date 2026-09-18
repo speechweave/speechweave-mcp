@@ -39,27 +39,84 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Resolve publish version
+        id: version
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            VERSION="${GITHUB_REF#refs/tags/v}"
+          else
+            VERSION="$(jq -r .version package.json)"
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Publishing version ${VERSION}"
+
+      # Idempotent: re-runs after a partial success must not fail on "already published".
       - name: Publish to npm
-        run: npm publish --provenance --access public
+        run: |
+          set -euo pipefail
+          VERSION="${{ steps.version.outputs.version }}"
+          NAME="$(jq -r .name package.json)"
+          if npm view "${NAME}@${VERSION}" version >/dev/null 2>&1; then
+            echo "${NAME}@${VERSION} already on npm; skipping npm publish"
+            exit 0
+          fi
+          set +e
+          output="$(npm publish --provenance --access public 2>&1)"
+          code=$?
+          set -e
+          echo "$output"
+          if [ "$code" -eq 0 ]; then
+            exit 0
+          fi
+          # Race: view missed a just-published version, or a prior run already landed it.
+          if echo "$output" | grep -qi "cannot publish over the previously published"; then
+            echo "${NAME}@${VERSION} already on npm; treating as success"
+            exit 0
+          fi
+          exit "$code"
 
       - name: Install mcp-publisher
-        if: startsWith(github.ref, 'refs/tags/v')
         run: |
-          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
+          curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
 
-      - name: Sync server.json version from tag
-        if: startsWith(github.ref, 'refs/tags/v')
+      - name: Sync server.json version
         run: |
-          VERSION=${GITHUB_REF#refs/tags/v}
+          VERSION="${{ steps.version.outputs.version }}"
           jq --arg v "$VERSION" '
             .version = $v
             | .packages[0].version = $v
           ' server.json > server.tmp && mv server.tmp server.json
 
       - name: Authenticate to MCP Registry
-        if: startsWith(github.ref, 'refs/tags/v')
         run: ./mcp-publisher login github-oidc
 
+      # npm can lag after publish; retry only on version-visibility 404s.
+      # "duplicate version" means this version is already registered (desired end state).
       - name: Publish to MCP Registry
-        if: startsWith(github.ref, 'refs/tags/v')
-        run: ./mcp-publisher publish
+        run: |
+          set -euo pipefail
+          MAX_ATTEMPTS=6
+          for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
+            set +e
+            output="$(./mcp-publisher publish 2>&1)"
+            code=$?
+            set -e
+            echo "$output"
+            if [ "$code" -eq 0 ]; then
+              exit 0
+            fi
+            if echo "$output" | grep -qi "duplicate version"; then
+              echo "Version already on MCP Registry; treating as success"
+              exit 0
+            fi
+            # Only retry npm propagation races (version not visible yet).
+            if ! echo "$output" | grep -qiE "not found|status: 404|status\":404"; then
+              exit "$code"
+            fi
+            if [ "$attempt" -lt "$MAX_ATTEMPTS" ]; then
+              echo "npm version not visible to MCP Registry yet (attempt ${attempt}/${MAX_ATTEMPTS}); waiting 30s..."
+              sleep 30
+            fi
+          done
+          echo "MCP Registry publish failed after ${MAX_ATTEMPTS} attempts"
+          exit 1

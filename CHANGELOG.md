@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.9.2]
+
+### Changed
+
+- **`@speechweave/node` bumped to `^1.7.1`:** picks up the `waitForJob` fix that retries transient network errors during status polling.
+
 ## [1.9.1]
 
 ### Security
