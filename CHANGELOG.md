@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.1]
+
+### Security
+
+- Bumped `vitest` (dev-only) to `4.1.11` to fix a moderate-severity path traversal advisory in `@vitest/mocker`.
+- Refreshed transitive `fast-uri`/`hono`/`qs` lockfile resolutions (pulled in via `@modelcontextprotocol/sdk`) to patched versions.
+
 ## [1.9.0]
 
 ### Added
@@ -11,11 +18,6 @@
 - **`fetch_doc` data retention:** source-audio storage backstop documented as 7 days (was 30), matching the live object-lifecycle rules on `uploads/` and `proxied/`. Failed and in-retry webhook delivery rows capped at 7 days (was 30).
 - **`fetch_doc` bundled docs:** ESM/CJS builds now resolve the shipped `reference/` markdown reliably when installed from npm (dirname shim in the bundle).
 - **`fetch_doc` billing reference:** trust-tier graduation copy updated for payment-age gates (7 / 21 / 60 days since first top-up) and one-step tier promotions.
-
-### Security
-
-- Bumped `vitest` (dev-only) to `4.1.11` to fix a moderate-severity path traversal advisory in `@vitest/mocker`.
-- Refreshed transitive `fast-uri`/`hono`/`qs` lockfile resolutions (pulled in via `@modelcontextprotocol/sdk`) to patched versions.
 
 ## [1.8.0]
 
